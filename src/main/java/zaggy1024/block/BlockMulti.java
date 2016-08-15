@@ -17,7 +17,6 @@ import zaggy1024.combo.VariantsOfTypesCombo.*;
 import zaggy1024.combo.variant.IMetadata;
 import zaggy1024.combo.variant.PropertyIMetadata;
 import zaggy1024.util.*;
-import zaggy1024.util.random.drops.blocks.*;
 
 /**
  * Generic class to use for combo blocks, and can be extended if an block doesn't need a specific subclass to Block.
@@ -43,8 +42,6 @@ public class BlockMulti<V extends IMetadata<V>> extends Block
 	
 	protected final HashSet<V> noItemVariants = new HashSet<>();
 	
-	protected final List<BlockStackProvider> drops = new ArrayList<>();
-	
 	public BlockMulti(VariantsOfTypesCombo<V> owner,
 			ObjectType<V, ? extends BlockMulti<V>, ? extends Item> type,
 			List<V> variants, Class<V> variantClass,
@@ -62,8 +59,6 @@ public class BlockMulti<V extends IMetadata<V>> extends Block
 		setDefaultState(getBlockState().getBaseState());
 		
 		setSoundType(sound);
-		
-		addDrop(type);
 	}
 	
 	@Override
@@ -98,50 +93,10 @@ public class BlockMulti<V extends IMetadata<V>> extends Block
 		owner.fillSubItems(type, variants, list);
 	}
 	
-	public BlockMulti<V> clearDrops()
-	{
-		drops.clear();
-		
-		return this;
-	}
-	
-	public BlockMulti<V> addDrop(BlockStackProvider drop)
-	{
-		drops.add(drop);
-		
-		return this;
-	}
-	
-	public BlockMulti<V> addDrop(ObjectType<V, ?, ?> type, int min, int max)
-	{
-		return addDrop(new VariantDrop<>(owner, type, min, max));
-	}
-	
-	public BlockMulti<V> addDrop(ObjectType<V, ?, ?> type)
-	{
-		return addDrop(type, 1, 1);
-	}
-	
 	@Override
 	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
 	{
-		ArrayList<ItemStack> stackList = new ArrayList<>();
-		V variant = state.getValue(variantProp);
-		
-		if (!noItemVariants.contains(variant))
-		{
-			Random rand = world instanceof World ? ((World) world).rand : RANDOM;
-			
-			for (BlockStackProvider drop : drops)
-			{
-				ItemStack stack = drop.getStack(state, rand);
-				
-				if (stack != null)
-					stackList.add(stack);
-			}
-		}
-		
-		return stackList;
+		return Collections.singletonList(owner.getStack(type, state.getValue(variantProp)));
 	}
 	
 	@Override
