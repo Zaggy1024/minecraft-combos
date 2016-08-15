@@ -15,12 +15,9 @@ import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.*;
-import zaggy1024.client.GenesisClient;
 import zaggy1024.combo.variant.IMetadata;
-import zaggy1024.common.*;
+import zaggy1024.proxy.*;
 import zaggy1024.util.*;
-import zaggy1024.util.Constants.Unlocalized;
-import zaggy1024.util.functional.ClientFunction;
 
 /**
  * Used to create Blocks/Items with variants of ObjectTypes.
@@ -117,6 +114,7 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 		}
 	}
 	
+	private final IProxy proxy;
 	/**
 	 * Map of Block/Item types to a map of variants to the block/item itself.
 	 */
@@ -134,6 +132,7 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 	
 	private String resourceDomain = "";
 	private String unlocalizedPrefix = "";
+	private String invalidMetadataName = "invalidMetadata";
 	
 	/**
 	 * Creates a {@link #VariantsOfTypesCombo} with each {@link Block}/{@link Item} represented by the list of {@link ObjectType},
@@ -153,10 +152,11 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 	 * @param variants The {@link IMetadata} representations of the variants to store for each Block/Item.
 	 */
 	@SuppressWarnings("unchecked")
-	public VariantsOfTypesCombo(String id,
+	public VariantsOfTypesCombo(IProxy proxy, String id,
 			List<? extends ObjectType<V, ?, ?>> types,
 			Class<V> variantClass, List<? extends V> variants)
 	{
+		this.proxy = proxy;
 		this.name = id;
 		this.types = ImmutableList.copyOf(types);
 		this.variants = ImmutableList.copyOf(variants);
@@ -408,6 +408,17 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 		return resourceDomain;
 	}
 	
+	public VariantsOfTypesCombo<V> setInvalidMetadataName(String name)
+	{
+		invalidMetadataName = name;
+		return this;
+	}
+	
+	public String getInvalidMetadataName()
+	{
+		return invalidMetadataName;
+	}
+	
 	/**
 	 * Registers all the variants of this {@link ObjectType}.
 	 */
@@ -444,15 +455,15 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 			
 			if (block != null)
 			{
-				Genesis.proxy.registerBlock(block, item, registryName, false);
+				proxy.registerBlock(block, item, registryName, false);
 				block.setUnlocalizedName(unlocName);
 				
 				// Register resource locations for the block.
-				Genesis.proxy.callClient(new ClientFunction()
+				proxy.callClient(new ClientFunction()
 				{
 					@Override
 					@SideOnly(Side.CLIENT)
-					public void apply(GenesisClient client)
+					public void apply(ClientProxy client)
 					{
 						FlexibleStateMap mapper = new FlexibleStateMap();
 						
@@ -491,7 +502,7 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 			}
 			else
 			{
-				Genesis.proxy.registerItem(item, registryName, false);
+				proxy.registerItem(item, registryName, false);
 			}
 			
 			// Set item model locations.
@@ -500,10 +511,18 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 				for (V variant : subset.variants.values())
 				{
 					VariantData data = getVariantData(type, variant);
-					Genesis.proxy.registerModel(
-							data.item,
-							data.itemMetadata,
-							new ResourceLocation(getResourceDomain(), type.getVariantName(variant)));
+					proxy.callClient(new ClientFunction()
+					{
+						@Override
+						@SideOnly(Side.CLIENT)
+						public void apply(ClientProxy client)
+						{
+							client.registerModel(
+									data.item,
+									data.itemMetadata,
+									new ResourceLocation(getResourceDomain(), type.getVariantName(variant)));
+						}
+					});
 				}
 			}
 			
@@ -1049,7 +1068,7 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 		V variant = getVariant(stack);
 		
 		if (variant == null)
-			return Unlocalized.INVALID_METADATA;
+			return getInvalidMetadataName();
 		
 		return getUnlocalizedName(variant, base);
 	}

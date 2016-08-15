@@ -16,7 +16,6 @@ import zaggy1024.combo.*;
 import zaggy1024.combo.VariantsOfTypesCombo.*;
 import zaggy1024.combo.variant.IMetadata;
 import zaggy1024.combo.variant.PropertyIMetadata;
-import zaggy1024.common.GenesisCreativeTabs;
 import zaggy1024.util.*;
 import zaggy1024.util.random.drops.blocks.*;
 
@@ -25,7 +24,7 @@ import zaggy1024.util.random.drops.blocks.*;
  * 
  * @author Zaggy1024
  */
-public class BlockGenesisVariants<V extends IMetadata<V>> extends Block
+public class BlockMulti<V extends IMetadata<V>> extends Block
 {
 	/**
 	 * Used in {@link VariantsOfTypesCombo}.
@@ -37,7 +36,7 @@ public class BlockGenesisVariants<V extends IMetadata<V>> extends Block
 	}
 	
 	public final VariantsOfTypesCombo<V> owner;
-	public final ObjectType<V, ? extends BlockGenesisVariants<V>, ? extends Item> type;
+	public final ObjectType<V, ? extends BlockMulti<V>, ? extends Item> type;
 	
 	public final List<V> variants;
 	public final PropertyIMetadata<V> variantProp;
@@ -46,8 +45,8 @@ public class BlockGenesisVariants<V extends IMetadata<V>> extends Block
 	
 	protected final List<BlockStackProvider> drops = new ArrayList<>();
 	
-	public BlockGenesisVariants(VariantsOfTypesCombo<V> owner,
-			ObjectType<V, ? extends BlockGenesisVariants<V>, ? extends Item> type,
+	public BlockMulti(VariantsOfTypesCombo<V> owner,
+			ObjectType<V, ? extends BlockMulti<V>, ? extends Item> type,
 			List<V> variants, Class<V> variantClass,
 			Material material, SoundType sound)
 	{
@@ -65,12 +64,10 @@ public class BlockGenesisVariants<V extends IMetadata<V>> extends Block
 		setSoundType(sound);
 		
 		addDrop(type);
-		
-		setCreativeTab(GenesisCreativeTabs.BLOCK);
 	}
 	
 	@Override
-	public BlockGenesisVariants<V> setCreativeTab(CreativeTabs tab)
+	public BlockMulti<V> setCreativeTab(CreativeTabs tab)
 	{
 		super.setCreativeTab(tab);
 		return this;
@@ -89,7 +86,7 @@ public class BlockGenesisVariants<V extends IMetadata<V>> extends Block
 	}
 	
 	@Override
-	public BlockGenesisVariants<V> setUnlocalizedName(String name)
+	public BlockMulti<V> setUnlocalizedName(String name)
 	{
 		super.setUnlocalizedName(name);
 		return this;
@@ -101,26 +98,26 @@ public class BlockGenesisVariants<V extends IMetadata<V>> extends Block
 		owner.fillSubItems(type, variants, list);
 	}
 	
-	public BlockGenesisVariants<V> clearDrops()
+	public BlockMulti<V> clearDrops()
 	{
 		drops.clear();
 		
 		return this;
 	}
 	
-	public BlockGenesisVariants<V> addDrop(BlockStackProvider drop)
+	public BlockMulti<V> addDrop(BlockStackProvider drop)
 	{
 		drops.add(drop);
 		
 		return this;
 	}
 	
-	public BlockGenesisVariants<V> addDrop(ObjectType<V, ?, ?> type, int min, int max)
+	public BlockMulti<V> addDrop(ObjectType<V, ?, ?> type, int min, int max)
 	{
 		return addDrop(new VariantDrop<>(owner, type, min, max));
 	}
 	
-	public BlockGenesisVariants<V> addDrop(ObjectType<V, ?, ?> type)
+	public BlockMulti<V> addDrop(ObjectType<V, ?, ?> type)
 	{
 		return addDrop(type, 1, 1);
 	}
