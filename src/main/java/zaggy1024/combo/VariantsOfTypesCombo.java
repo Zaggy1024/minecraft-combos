@@ -14,7 +14,6 @@ import net.minecraft.block.state.*;
 import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.relauncher.*;
 import zaggy1024.combo.variant.IMetadata;
 import zaggy1024.proxy.*;
 import zaggy1024.util.*;
@@ -459,45 +458,40 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 				block.setUnlocalizedName(unlocName);
 				
 				// Register resource locations for the block.
-				proxy.callClient(new ClientFunction()
+				if (proxy.getSide().isClient())
 				{
-					@Override
-					@SideOnly(Side.CLIENT)
-					public void apply(ClientProxy client)
+					FlexibleStateMap mapper = new FlexibleStateMap();
+					
+					if (type.getUseSeparateVariantJsons())
 					{
-						FlexibleStateMap mapper = new FlexibleStateMap();
-						
-						if (type.getUseSeparateVariantJsons())
+						switch (type.getTypeNamePosition())
 						{
-							switch (type.getTypeNamePosition())
-							{
-							case PREFIX:
-								mapper.setPrefix(type.getResourceName(), "_");
-								break;
-							case POSTFIX:
-								mapper.setPostfix(type.getResourceName(), "_");
-								break;
-							default:
-								break;
-							}
-							
-							IProperty<V> variantProp = getVariantProperty(block);
-							
-							if (variantProp != null)
-							{
-								mapper.setNameProperty(variantProp);
-							}
-						}
-						else
-						{
+						case PREFIX:
 							mapper.setPrefix(type.getResourceName(), "_");
+							break;
+						case POSTFIX:
+							mapper.setPostfix(type.getResourceName(), "_");
+							break;
+						default:
+							break;
 						}
 						
-						type.customizeStateMap(mapper);
+						IProperty<V> variantProp = getVariantProperty(block);
 						
-						ModelLoader.setCustomStateMapper(block, mapper);
+						if (variantProp != null)
+						{
+							mapper.setNameProperty(variantProp);
+						}
 					}
-				});
+					else
+					{
+						mapper.setPrefix(type.getResourceName(), "_");
+					}
+					
+					type.customizeStateMap(mapper);
+					
+					ModelLoader.setCustomStateMapper(block, mapper);
+				}
 				// End registering block resource locations.
 			}
 			else
@@ -506,23 +500,18 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 			}
 			
 			// Set item model locations.
-			if (type.shouldRegisterVariantModels())
+			if (proxy.getSide().isClient())
 			{
-				for (V variant : subset.variants.values())
+				if (type.shouldRegisterVariantModels())
 				{
-					VariantData data = getVariantData(type, variant);
-					proxy.callClient(new ClientFunction()
+					for (V variant : subset.variants.values())
 					{
-						@Override
-						@SideOnly(Side.CLIENT)
-						public void apply(ClientProxy client)
-						{
-							client.registerModel(
-									data.item,
-									data.itemMetadata,
-									new ResourceLocation(getResourceDomain(), type.getVariantName(variant)));
-						}
-					});
+						VariantData data = getVariantData(type, variant);
+						ModelUtils.registerModel(
+								data.item,
+								data.itemMetadata,
+								new ResourceLocation(getResourceDomain(), type.getVariantName(variant)));
+					}
 				}
 			}
 			
