@@ -7,7 +7,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.*;
 import zaggy1024.combo.*;
 import zaggy1024.combo.variant.IMetadata;
-import zaggy1024.common.GenesisCreativeTabs;
 
 /**
  * Generic class to use for combo blocks, and can be extended if a block doesn't need a specific subclass to ItemBlock.
@@ -33,8 +32,6 @@ public class ItemBlockMulti<V extends IMetadata<V>> extends ItemBlock
 		this.variants = variants;
 		
 		setHasSubtypes(true);
-		
-		setCreativeTab(GenesisCreativeTabs.BLOCK);
 	}
 	
 	@Override
