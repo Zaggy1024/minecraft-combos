@@ -113,7 +113,6 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 		}
 	}
 	
-	private final IProxy proxy;
 	/**
 	 * Map of Block/Item types to a map of variants to the block/item itself.
 	 */
@@ -151,11 +150,10 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 	 * @param variants The {@link IMetadata} representations of the variants to store for each Block/Item.
 	 */
 	@SuppressWarnings("unchecked")
-	public VariantsOfTypesCombo(IProxy proxy, String id,
+	public VariantsOfTypesCombo(String id,
 			List<? extends ObjectType<V, ?, ?>> types,
 			Class<V> variantClass, List<? extends V> variants)
 	{
-		this.proxy = proxy;
 		this.name = id;
 		this.types = ImmutableList.copyOf(types);
 		this.variants = ImmutableList.copyOf(variants);
@@ -421,7 +419,7 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 	/**
 	 * Registers all the variants of this {@link ObjectType}.
 	 */
-	public void registerVariants(ObjectType<V, ?, ?> type)
+	public void registerVariants(IProxy proxy, ObjectType<V, ?, ?> type)
 	{
 		if (!registeredTypes.add(type))
 		{
@@ -525,11 +523,11 @@ public class VariantsOfTypesCombo<V extends IMetadata<V>>
 	/**
 	 * Registers all variants of all {@link ObjectType}s associated with this combo.
 	 */
-	public void registerAll()
+	public void registerAll(IProxy proxy)
 	{
 		for (ObjectType<V, ?, ?> type : types)
 		{
-			registerVariants(type);
+			registerVariants(proxy, type);
 		}
 	}
 	
