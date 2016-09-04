@@ -41,7 +41,7 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 	protected boolean variantAsName = true;
 	protected boolean registerVariantModels = true;
 	
-	protected Function<V, String> variantNameFunction = null;
+	protected BiFunction<V, String, String> variantNameFunction = null;
 	protected BiConsumer<? super B, ? super I> afterConstructed;
 	protected BiConsumer<? super B, ? super I> afterRegistered;
 	
@@ -261,7 +261,7 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 		}
 	}
 	
-	public ObjectType<V, B, I> setVariantNameFunction(Function<V, String> function)
+	public ObjectType<V, B, I> setVariantNameFunction(BiFunction<V, String, String> function)
 	{
 		variantNameFunction = function;
 		return this;
@@ -270,7 +270,7 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 	public final String getVariantName(V variant)
 	{
 		if (variantNameFunction != null)
-			return variantNameFunction.apply(variant);
+			return variantNameFunction.apply(variant, getResourceName());
 		
 		String resource = variant.getName();
 		
