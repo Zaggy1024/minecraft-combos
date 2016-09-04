@@ -42,8 +42,8 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 	protected boolean registerVariantModels = true;
 	
 	protected Function<V, String> variantNameFunction = null;
-	protected ObjectFunction<? super B, ? super I> afterConstructed;
-	protected ObjectFunction<? super B, ? super I> afterRegistered;
+	protected BiConsumer<? super B, ? super I> afterConstructed;
+	protected BiConsumer<? super B, ? super I> afterRegistered;
 	
 	protected CreativeTabs tab = null;
 	
@@ -214,7 +214,7 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 		return this;
 	}
 	
-	public ObjectType<V, B, I> setConstructedFunction(ObjectFunction<? super B, ? super I> function)
+	public ObjectType<V, B, I> setConstructedFunction(BiConsumer<? super B, ? super I> function)
 	{
 		afterConstructed = function;
 		return this;
@@ -231,10 +231,10 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 		}
 		
 		if (afterConstructed != null)
-			afterConstructed.apply(ReflectionUtils.nullSafeCast(blockClass, block), ReflectionUtils.nullSafeCast(itemClass, item));
+			afterConstructed.accept(ReflectionUtils.nullSafeCast(blockClass, block), ReflectionUtils.nullSafeCast(itemClass, item));
 	}
 	
-	public ObjectType<V, B, I> setRegisteredFunction(ObjectFunction<? super B, ? super I> function)
+	public ObjectType<V, B, I> setRegisteredFunction(BiConsumer<? super B, ? super I> function)
 	{
 		afterRegistered = function;
 		return this;
@@ -243,7 +243,7 @@ public class ObjectType<V extends IMetadata<V>, B extends Block, I extends Item>
 	public final void afterRegistered(Block block, Item item)
 	{
 		if (afterRegistered != null)
-			afterRegistered.apply(ReflectionUtils.nullSafeCast(blockClass, block), ReflectionUtils.nullSafeCast(itemClass, item));
+			afterRegistered.accept(ReflectionUtils.nullSafeCast(blockClass, block), ReflectionUtils.nullSafeCast(itemClass, item));
 	}
 	
 	public ObjectType<V, B, I> setIgnoredProperties(IProperty<?>... properties)
