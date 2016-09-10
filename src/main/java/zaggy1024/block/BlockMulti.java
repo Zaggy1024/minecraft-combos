@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.*;
 import net.minecraft.block.state.*;
@@ -45,9 +46,9 @@ public class BlockMulti<V extends IMetadata<V>> extends Block
 	public BlockMulti(VariantsOfTypesCombo<V> owner,
 			ObjectType<V, ? extends BlockMulti<V>, ? extends Item> type,
 			List<V> variants, Class<V> variantClass,
-			Material material, SoundType sound)
+			Material material, MapColor mapColor, SoundType sound)
 	{
-		super(material);
+		super(material, mapColor);
 		
 		this.owner = owner;
 		this.type = type;
@@ -59,6 +60,14 @@ public class BlockMulti<V extends IMetadata<V>> extends Block
 		setDefaultState(getBlockState().getBaseState());
 		
 		setSoundType(sound);
+	}
+	
+	public BlockMulti(VariantsOfTypesCombo<V> owner,
+			ObjectType<V, ? extends BlockMulti<V>, ? extends Item> type,
+			List<V> variants, Class<V> variantClass,
+			Material material, SoundType sound)
+	{
+		this(owner, type, variants, variantClass, material, material.getMaterialMapColor(), sound);
 	}
 	
 	@Override
